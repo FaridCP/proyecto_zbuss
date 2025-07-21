@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Z Buss - Todos los Destinos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap">
+  <link rel="stylesheet" th:href="@{/css/rutas.css}"></link>
+  <style>
+
+    :root {
+      --primary: #1c3d58;
+      --secondary: #2a6496;
+      --accent: #ff7e30;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-blue: #e3f2fd;
+    }
+
+    body {
+      color: var(--dark);
+      background-color: #f9fbfd;
+      line-height: 1.6;
+    }
+    
+    .hero {
+      background: linear-gradient(rgba(28, 61, 88, 0.85), rgba(28, 61, 88, 0.9)), url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3') no-repeat center center/cover;
+      color: white;
+      padding: 5rem 0 3rem;
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .hero h1 {
+      font-size: 2.8rem;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .hero p {
+      font-size: 1.3rem;
+      max-width: 700px;
+      margin: 0 auto 2rem;
+      opacity: 0.9;
+    }
+    
+    .destino-nav {
+      background: white;
+      border-radius: 12px;
+      padding: 1.8rem;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      margin-bottom: 3rem;
+      position: sticky;
+      top: 20px;
+      z-index: 100;
+    }
+    
+    .destino-nav h2 {
+      color: var(--primary);
+      font-size: 1.6rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      position: relative;
+      padding-bottom: 12px;
+    }
+    
+    .destino-nav h2:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 3px;
+    }
+    
+    .nav-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+    
+    .nav-links a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.8rem 1rem;
+      background: var(--light-blue);
+      color: var(--primary);
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-align: center;
+      border: 2px solid transparent;
+    }
+    
+    .nav-links a:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(28, 61, 88, 0.2);
+      border-color: var(--accent);
+    }
+    
+    .destino-section {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 3rem;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      transition: transform 0.3s, box-shadow 0.3s;
+      border-top: 4px solid var(--accent);
+    }
+    
+    .destino-section:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+    
+    .destino-header {
+      background: var(--primary);
+      color: white;
+      padding: 1.8rem 2rem;
+      position: relative;
+    }
+    
+    .destino-header h2 {
+      margin: 0;
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .destino-header h2 i {
+      margin-right: 12px;
+      color: var(--accent);
+    }
+    
+    .destino-content {
+      padding: 2.5rem;
+    }
+    
+    .destino-imagen {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 1.8rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .section-title {
+      color: var(--primary);
+      font-size: 1.5rem;
+      margin: 2rem 0 1.2rem;
+      padding-bottom: 0.7rem;
+      border-bottom: 2px solid var(--light-blue);
+      position: relative;
+    }
+    
+    .section-title:after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 60px;
+      height: 2px;
+      background: var(--accent);
+    }
+    
+    .section-content {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: #444;
+      margin-bottom: 1.5rem;
+    }
+    
+    .highlight-text {
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .info-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.8rem;
+      margin: 2.5rem 0;
+    }
+    
+    .info-card {
+      background: var(--light-blue);
+      border-radius: 12px;
+      padding: 1.8rem;
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--accent);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    
+    .info-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      background: linear-gradient(to bottom right, var(--light-blue), white);
+    }
+    
+    .info-card h4 {
+      color: var(--primary);
+      font-size: 1.3rem;
+      margin-bottom: 1.3rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .info-card h4 i {
+      margin-right: 10px;
+      color: var(--accent);
+      font-size: 1.4rem;
+    }
+    
+    .info-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .info-card ul li {
+      padding: 0.7rem 0;
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      color: var(--dark);
+      border-bottom: 1px dashed rgba(0,0,0,0.08);
+    }
+    
+    .info-card ul li:last-child {
+      border-bottom: none;
+    }
+    
+    .info-card ul li i {
+      color: var(--accent);
+      margin-right: 10px;
+      font-size: 1.1rem;
+    }
+    
+    .contact-card {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      padding: 1.8rem;
+      color: white;
+      margin: 2rem 0;
+      box-shadow: 0 6px 18px rgba(28, 61, 88, 0.25);
+    }
+    
+    .contact-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .contact-card h3 i {
+      margin-right: 12px;
+      color: var(--accent);
+    }
+    
+    .contact-card .phone {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 1rem 0;
+      letter-spacing: 0.5px;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    
+    .feature-item {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      border-top: 3px solid var(--accent);
+      transition: all 0.3s ease;
+    }
+    
+    .feature-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    
+    .feature-item i {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    
+    .feature-item h4 {
+      color: var(--primary);
+      font-size: 1.2rem;
+      margin-bottom: 0.8rem;
+    }
+    
+    .feature-item p {
+      color: var(--gray);
+      font-size: 0.95rem;
+    }
+    
+    .back-to-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--accent);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 4px 12px rgba(255, 126, 48, 0.4);
+      z-index: 999;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .back-to-top.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    @media (max-width: 992px) {
+      .hero {
+        padding: 4rem 0 2.5rem;
+      }
+      
+      .hero h1 {
+        font-size: 2.3rem;
+      }
+      
+      .hero p {
+        font-size: 1.1rem;
+      }
+      
+      .destino-content {
+        padding: 2rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .navbar-brand {
+        font-size: 1.5rem;
+      }
+      
+      .hero {
+        padding: 3.5rem 0 2rem;
+      }
+      
+      .hero h1 {
+        font-size: 2rem;
+      }
+      
+      .destino-header h2 {
+        font-size: 1.6rem;
+      }
+      
+      .destino-content {
+        padding: 1.8rem;
+      }
+      
+      .contact-card .phone {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" th:href="@{/home}">
+      <img src="/img/cropped-z-bus.png" alt="Logo ZBUSS" class="me-2">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link active" th:href="@{/home}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/rutas}">Pasajes</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/destinos}">Destinos</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/quienes-somos}">Quiénes Somos</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/contacto}">Contacto</a></li>
+
+        <!-- Usuario logueado -->
+        <li class="nav-item dropdown" th:if="${session.usuarioLogeado != null}">
+          <a class="nav-link dropdown-toggle" href="#" id="usuarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user me-1"></i>
+            <span th:text="${session.usuarioLogeado.nombre}">Usuario</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
+            <li><a class="dropdown-item" th:href="@{/perfil/compras}"><i class="fas fa-ticket-alt me-2"></i> Mis Compras</a></li>
+            <li><a class="dropdown-item" th:href="@{/cambiar-contrasena}"><i class="fas fa-key me-2"></i> Cambiar Contraseña</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión</a></li>
+          </ul>
+        </li>
+
+        <!-- Usuario no logueado -->
+        <li class="nav-item" th:if="${session.usuarioLogeado == null}">
+          <a class="nav-link" th:href="@{/login}"><i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="modal fade" id="logoutModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cerrar sesión</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">¿Estás seguro de que quieres cerrar sesión?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <a class="btn btn-primary" th:href="@{/logout}">Cerrar sesión</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Descubre Nuestros Destinos</h1>
+      <p>Viaja con comodidad, seguridad y los mejores precios a los destinos más importantes del país. Con Z Buss, tu viaje es una experiencia inolvidable.</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="destino-nav">
+      <h2><i class="bi bi-geo-alt-fill"></i> Explora Nuestras Rutas</h2>
+      <div class="nav-links">
+        <a href="#acho"><i class="bi bi-geo me-2"></i> Acho</a>
+        <a href="#barranca"><i class="bi bi-geo me-2"></i> Barranca</a>
+        <a href="#chancay"><i class="bi bi-geo me-2"></i> Chancay</a>
+        <a href="#huacho"><i class="bi bi-geo me-2"></i> Huacho</a>
+        <a href="#huaral"><i class="bi bi-geo me-2"></i> Huaral</a>
+        <a href="#huaraz"><i class="bi bi-geo me-2"></i> Huaraz</a>
+      </div>
+    </div>
+
+    <main>
+      <section id="acho" class="destino-section">
+        <div class="destino-header">
+          <h2><i class="bi bi-bus-front"></i> Z Buss Acho</h2>
+        </div>
+        <div class="destino-content">
+          <img src="/img/z-buss-2.jpg" alt="Acho" class="destino-imagen">
+          
+          <p class="section-content">Z Buss Acho ha emergido como un referente en el transporte terrestre, especializándose en brindar servicios de alta calidad en la región de Acho. Con un enfoque en la seguridad, comodidad y satisfacción del cliente, Z Buss Acho se ha establecido como una opción predilecta para viajeros locales y turistas por igual.</p>
+          
+          <div class="info-cards">
+            <article class="info-card">
+              <h4><i class="bi bi-cash-coin"></i> Precios</h4>
+              <ul>
+                <li><i class="bi bi-arrow-right"></i> <span class="highlight-text">Lima – Huacho:</span> Desde 35 soles</li>
+                <li><i class="bi bi-arrow-left"></i> <span class="highlight-text">Huacho – Lima:</span> Desde 35 soles</li>
+              </ul>
+            </article>
+            
+            <article class="info-card">
+              <h4><i class="bi bi-clock"></i> Horarios</h4>
+              <ul>
+                <li><i class="bi bi-clock-history"></i> 8:00 am</li>
+                <li><i class="bi bi-clock-history"></i> 9:20 am</li>
+                <li><i class="bi bi-clock-history"></i> 1:00 pm</li>
+              </ul>
+            </article>
+            
+            <article class="info-card">
+              <h4><i class="bi bi-stars"></i> Servicios</h4>
+              <ul>
+                <li><i class="bi bi-check-circle"></i> Económico</li>
+                <li><i class="bi bi-check-circle"></i> Bus Cama</li>
+                <li><i class="bi bi-check-circle"></i> Sofá Cama</li>
+              </ul>
+            </article>
+          </div>
+          
+          <div class="contact-card">
+            <h3><i class="bi bi-telephone"></i> Para consultas y reservas</h3>
+            <div class="phone">+51 1 4095741</div>
+            <p>Disponible de lunes a domingo de 6:00 am a 10:00 pm</p>
+          </div>
+          
+          <h3 class="section-title">Ventajas de Viajar con Nosotros</h3>
+          <div class="features-grid">
+            <div class="feature-item">
+              <i class="bi bi-shield-check"></i>
+              <h4>Seguridad Garantizada</h4>
+              <p>Protocolos rigurosos y conductores certificados</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-wifi"></i>
+              <h4>Comodidades Modernas</h4>
+              <p>Wi-Fi, aire acondicionado y entretenimiento a bordo</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-coin"></i>
+              <h4>Precios Competitivos</h4>
+              <p>La mejor relación calidad-precio del mercado</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-tree"></i>
+              <h4>Compromiso Ecológico</h4>
+              <p>Prácticas sostenibles en todas nuestras operaciones</p>
+            </div>
+          </div>
+          
+          <h3 class="section-title">Nuestro Compromiso</h3>
+          <p class="section-content">Z Buss Acho no es solo un servicio de transporte; es un símbolo de innovación y calidad en la industria del transporte terrestre. La empresa continúa estableciendo nuevos estándares en comodidad y seguridad, haciendo de cada viaje una experiencia memorable. Para viajes diarios, excursiones de fin de semana o aventuras turísticas, Z Buss Acho es sinónimo de confiabilidad y confort en el camino.</p>
+        </div>
+      </section>
+
+      <section id="barranca" class="destino-section">
+        <div class="destino-header">
+          <h2><i class="bi bi-bus-front"></i> Z Buss Barranca</h2>
+        </div>
+        <div class="destino-content">
+          <img src="/img/zeta-bus-chancay.jpg" alt="Barranca" class="destino-imagen">
+          
+          <p class="section-content">Z Buss Barranca conecta esta histórica ciudad costera con Lima y otras regiones, ofreciendo un transporte seguro, cómodo y confiable. Reconocida por su puntualidad y atención al pasajero, esta ruta es ideal para quienes valoran un viaje de calidad.</p>
+          
+          <div class="info-cards">
+            <article class="info-card">
+              <h4><i class="bi bi-cash-coin"></i> Precios</h4>
+              <ul>
+                <li><i class="bi bi-arrow-right"></i> <span class="highlight-text">Lima – Barranca:</span> Desde 25 soles</li>
+                <li><i class="bi bi-arrow-left"></i> <span class="highlight-text">Barranca – Lima:</span> Desde 25 soles</li>
+              </ul>
+            </article>
+            
+            <article class="info-card">
+              <h4><i class="bi bi-clock"></i> Horarios</h4>
+              <ul>
+                <li><i class="bi bi-clock-history"></i> 6:30 am</li>
+                <li><i class="bi bi-clock-history"></i> 9:00 am</li>
+                <li><i class="bi bi-clock-history"></i> 12:30 pm</li>
+                <li><i class="bi bi-clock-history"></i> 4:00 pm</li>
+              </ul>
+            </article>
+            
+            <article class="info-card">
+              <h4><i class="bi bi-stars"></i> Servicios</h4>
+              <ul>
+                <li><i class="bi bi-check-circle"></i> Económico</li>
+                <li><i class="bi bi-check-circle"></i> Bus Cama</li>
+                <li><i class="bi bi-check-circle"></i> Sofá Cama</li>
+              </ul>
+            </article>
+          </div>
+          
+          <div class="contact-card">
+            <h3><i class="bi bi-telephone"></i> Para consultas y reservas</h3>
+            <div class="phone">+51 1 4095741</div>
+            <p>Disponible de lunes a domingo de 6:00 am a 10:00 pm</p>
+          </div>
+          
+          <h3 class="section-title">Características Destacadas</h3>
+          <div class="features-grid">
+            <div class="feature-item">
+              <i class="bi bi-stopwatch"></i>
+              <h4>Puntualidad Garantizada</h4>
+              <p>Llegamos siempre a tiempo a nuestro destino</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-emoji-smile"></i>
+              <h4>Atención Personalizada</h4>
+              <p>Personal capacitado para atender tus necesidades</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-speedometer2"></i>
+              <h4>Flota de Última Generación</h4>
+              <p>Autobuses modernos con tecnología avanzada</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-shield-lock"></i>
+              <h4>Seguridad Primordial</h4>
+              <p>Sistemas de monitoreo y conductores certificados</p>
+            </div>
+          </div>
+          
+          <h3 class="section-title">Experiencia de Viaje</h3>
+          <p class="section-content">Viajar con Z Buss Barranca es optar por calidad, confort y seguridad. Ya sea para trabajo, turismo o visitas familiares, esta empresa garantiza un servicio a la altura de tus expectativas. Con su combinación de seguridad, comodidad y atención al cliente, Z Buss se ha establecido como la opción preferida para aquellos que buscan explorar las maravillas de Barranca y sus alrededores.</p>
+        </div>
+      </section>
+      
+      <!-- Sección Chancay -->
+      <section id="chancay" class="destino-section">
+        <div class="destino-header">
+          <h2><i class="bi bi-bus-front"></i> Z Buss Chancay</h2>
+        </div>
+        <div class="destino-content">
+          <img src="/img/zeta-bus-chancay.jpg" alt="Chancay" class="destino-imagen">
+          
+          <p class="section-content">Z Buss Chancay ofrece un servicio cómodo y seguro, conectando la hermosa naturaleza y cultura de Chancay con tecnología y calidad. Los autobuses cuentan con asientos reclinables, Wi-Fi, aire acondicionado y sistemas de entretenimiento para que cada viaje sea placentero.</p>
+          
+          <div class="info-cards">
+            <article class="info-card">
+              <h4><i class="bi bi-cash-coin"></i> Precios</h4>
+              <ul>
+                <li><i class="bi bi-arrow-right"></i> <span class="highlight-text">Lima – Chancay:</span> Desde 20 soles</li>
+                <li><i class="bi bi-arrow-left"></i> <span class="highlight-text">Chancay – Lima:</span> Desde 20 soles</li>
+              </ul>
+            </article>
+            
+            <article class="info-card">
+              <h4><i class="bi bi-clock"></i> Horarios</h4>
+              <ul>
+                <li><i class="bi bi-clock-history"></i> 6:00 am</li>
+                <li><i class="bi bi-clock-history"></i> 10:00 am</li>
+                <li><i class="bi bi-clock-history"></i> 3:00 pm</li>
+              </ul>
+            </article>
+            
+            <article class="info-card">
+              <h4><i class="bi bi-stars"></i> Servicios</h4>
+              <ul>
+                <li><i class="bi bi-check-circle"></i> Económico</li>
+                <li><i class="bi bi-check-circle"></i> Bus Cama</li>
+                <li><i class="bi bi-check-circle"></i> Sofá Cama</li>
+              </ul>
+            </article>
+          </div>
+          
+          <div class="contact-card">
+            <h3><i class="bi bi-telephone"></i> Para consultas y reservas</h3>
+            <div class="phone">+51 981 284 921</div>
+            <p>Disponible de lunes a domingo de 6:00 am a 10:00 pm</p>
+          </div>
+          
+          <h3 class="section-title">Beneficios Exclusivos</h3>
+          <div class="features-grid">
+            <div class="feature-item">
+              <i class="bi bi-pin-map"></i>
+              <h4>Rutas Estratégicas</h4>
+              <p>Trayectos optimizados para menor tiempo de viaje</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-people"></i>
+              <h4>Atención al Cliente</h4>
+              <p>Asistencia personalizada durante todo el viaje</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-bag-check"></i>
+              <h4>Espacio para Equipaje</h4>
+              <p>Amplio espacio para tu equipaje personal</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-credit-card"></i>
+              <h4>Múltiples Medios de Pago</h4>
+              <p>Aceptamos todas las tarjetas y transferencias</p>
+            </div>
+          </div>
+          
+          <h3 class="section-title">Historia y Crecimiento</h3>
+          <p class="section-content">Z Buss Chancay nació con la visión de conectar Chancay con diversas partes del país de manera eficiente y cómoda. Desde su creación, la empresa ha crecido sustancialmente, extendiendo sus rutas y aumentando su flota para satisfacer la creciente demanda de un transporte de calidad en la región.</p>
+        </div>
+      </section>
+      
+      <!-- Sección Huacho -->
+      <section id="huacho" class="destino-section">
+        <div class="destino-header">
+          <h2><i class="bi bi-bus-front"></i> Z Buss Huacho</h2>
+        </div>
+        <div class="destino-content">
+          <img src="/img/z-bus-huaral.jpg" alt="Huacho" class="destino-imagen">
+          
+          <p class="section-content">Z Buss Huacho es reconocido como un servicio de transporte confiable que conecta Huacho con Lima y otras regiones importantes del país. Con una fuerte apuesta por la comodidad, seguridad y atención al cliente, esta línea de buses ha ganado la preferencia de viajeros locales y turistas.</p>
+          
+          <div class="info-cards">
+            <article class="info-card">
+              <h4><i class="bi bi-cash-coin"></i> Precios</h4>
+              <ul>
+                <li><i class="bi bi-arrow-right"></i> <span class="highlight-text">Lima – Huacho:</span> Desde 30 soles</li>
+                <li><i class="bi bi-arrow-left"></i> <span class="highlight-text">Huacho – Lima:</span> Desde 30 soles</li>
+              </ul>
+            </article>
+            
+            <article class="info-card">
+              <h4><i class="bi bi-clock"></i> Horarios</h4>
+              <ul>
+                <li><i class="bi bi-clock-history"></i> 7:30 am</li>
+                <li><i class="bi bi-clock-history"></i> 10:00 am</li>
+                <li><i class="bi bi-clock-history"></i> 2:00 pm</li>
+                <li><i class="bi bi-clock-history"></i> 5:30 pm</li>
+              </ul>
+            </article>
+            
+            <article class="info-card">
+              <h4><i class="bi bi-stars"></i> Servicios</h4>
+              <ul>
+                <li><i class="bi bi-check-circle"></i> Económico</li>
+                <li><i class="bi bi-check-circle"></i> Bus Cama</li>
+                <li><i class="bi bi-check-circle"></i> Sofá Cama</li>
+              </ul>
+            </article>
+          </div>
+          
+          <div class="contact-card">
+            <h3><i class="bi bi-telephone"></i> Para consultas y reservas</h3>
+            <div class="phone">+51 1 4095741</div>
+            <p>Disponible de lunes a domingo de 6:00 am a 10:00 pm</p>
+          </div>
+          
+          <h3 class="section-title">Nuestras Ventajas</h3>
+          <div class="features-grid">
+            <div class="feature-item">
+              <i class="bi bi-tools"></i>
+              <h4>Mantenimiento Constante</h4>
+              <p>Flota en perfecto estado con revisiones periódicas</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-hand-thumbs-up"></i>
+              <h4>Calidad Garantizada</h4>
+              <p>Servicio de primera clase a precios accesibles</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-geo-alt"></i>
+              <h4>Puntos de Embarque</h4>
+              <p>Múltiples paradas estratégicas en la ciudad</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-calendar-check"></i>
+              <h4>Reservas Anticipadas</h4>
+              <p>Garantiza tu asiento con reservas online</p>
+            </div>
+          </div>
+          
+          <h3 class="section-title">Compromiso con la Comunidad</h3>
+          <p class="section-content">Z Buss Huacho no solo se preocupa por ofrecer un excelente servicio de transporte, sino que también está comprometida con la sostenibilidad ambiental y el desarrollo de la comunidad local. La empresa trabaja continuamente en la implementación de prácticas ecológicas y apoya iniciativas sociales que benefician a la región.</p>
+        </div>
+      </section>
+      
+      <!-- Sección Huaral -->
+      <section id="huaral" class="destino-section">
+        <div class="destino-header">
+          <h2><i class="bi bi-bus-front"></i> Z Buss Huaral</h2>
+        </div>
+        <div class="destino-content">
+          <img src="/img/zeta-bus-chancay.jpg" alt="Huaral" class="destino-imagen">
+          
+          <p class="section-content">Z Buss Huaral se centra en ofrecer un servicio cómodo y seguro para los pasajeros, conectando la hermosa naturaleza y cultura de Huaral con tecnología y calidad. Los autobuses cuentan con asientos reclinables, Wi-Fi, aire acondicionado y sistemas de entretenimiento para que cada viaje sea placentero.</p>
+          
+          <div class="info-cards">
+            <article class="info-card">
+              <h4><i class="bi bi-cash-coin"></i> Precios</h4>
+              <ul>
+                <li><i class="bi bi-arrow-right"></i> <span class="highlight-text">Lima – Huaral:</span> Desde 8 soles</li>
+                <li><i class="bi bi-arrow-left"></i> <span class="highlight-text">Huaral – Lima:</span> Desde 8 soles</li>
+              </ul>
+            </article>
+            
+            <article class="info-card">
+              <h4><i class="bi bi-clock"></i> Horarios</h4>
+              <ul>
+                <li><i class="bi bi-clock-history"></i> 8:00 am</li>
+                <li><i class="bi bi-clock-history"></i> 9:20 am</li>
+                <li><i class="bi bi-clock-history"></i> 1:00 pm</li>
+              </ul>
+            </article>
+            
+            <article class="info-card">
+              <h4><i class="bi bi-stars"></i> Servicios</h4>
+              <ul>
+                <li><i class="bi bi-check-circle"></i> Económico</li>
+                <li><i class="bi bi-check-circle"></i> Bus Cama</li>
+                <li><i class="bi bi-check-circle"></i> Sofá Cama</li>
+              </ul>
+            </article>
+          </div>
+          
+          <div class="contact-card">
+            <h3><i class="bi bi-telephone"></i> Para consultas y reservas</h3>
+            <div class="phone">+51 1 4095741</div>
+            <p>Disponible de lunes a domingo de 6:00 am a 10:00 pm</p>
+          </div>
+          
+          <h3 class="section-title">Servicios Destacados</h3>
+          <div class="features-grid">
+            <div class="feature-item">
+              <i class="bi bi-lightning-charge"></i>
+              <h4>Frecuencia Constante</h4>
+              <p>Salidas regulares durante todo el día</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-cup-hot"></i>
+              <h4>Servicio a Bordo</h4>
+              <p>Refrigerios y bebidas durante el viaje</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-bandaid"></i>
+              <h4>Seguro de Viaje</h4>
+              <p>Protección adicional para tu tranquilidad</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-phone"></i>
+              <h4>App Móvil</h4>
+              <p>Reserva y gestiona tus viajes desde tu celular</p>
+            </div>
+          </div>
+          
+          <h3 class="section-title">Innovación y Futuro</h3>
+          <p class="section-content">Mirando hacia el futuro, Z Buss Huaral está comprometida con la innovación y la sostenibilidad. La empresa está explorando opciones para incorporar vehículos más ecológicos en su flota y adoptar prácticas de operación sostenibles, reduciendo así su huella de carbono y contribuyendo a un futuro más verde.</p>
+        </div>
+      </section>
+      
+      <!-- Sección Huaraz -->
+      <section id="huaraz" class="destino-section">
+        <div class="destino-header">
+          <h2><i class="bi bi-bus-front"></i> Z Buss Huaraz</h2>
+        </div>
+        <div class="destino-content">
+          <img src="/img/z-buss-2.jpg" alt="Huaraz" class="destino-imagen">
+          
+          <p class="section-content">Z Buss Huaraz ofrece viajes cómodos y seguros a Huaraz, puente entre la aventura andina y confort moderno. Destacado por servicio excepcional y atención al detalle, esta ruta es la opción preferida para explorar las maravillas naturales de los Andes peruanos.</p>
+          
+          <div class="info-cards">
+            <article class="info-card">
+              <h4><i class="bi bi-cash-coin"></i> Precios</h4>
+              <ul>
+                <li><i class="bi bi-arrow-right"></i> <span class="highlight-text">Lima – Huaraz:</span> Desde 35 soles</li>
+                <li><i class="bi bi-arrow-left"></i> <span class="highlight-text">Huaraz – Lima:</span> Desde 35 soles</li>
+              </ul>
+            </article>
+            
+            <article class="info-card">
+              <h4><i class="bi bi-clock"></i> Horarios</h4>
+              <ul>
+                <li><i class="bi bi-clock-history"></i> 8:00 am</li>
+                <li><i class="bi bi-clock-history"></i> 9:20 am</li>
+                <li><i class="bi bi-clock-history"></i> 1:00 pm</li>
+                <li><i class="bi bi-clock-history"></i> 5:00 pm</li>
+              </ul>
+            </article>
+            
+            <article class="info-card">
+              <h4><i class="bi bi-stars"></i> Servicios</h4>
+              <ul>
+                <li><i class="bi bi-check-circle"></i> Económico</li>
+                <li><i class="bi bi-check-circle"></i> Bus Cama</li>
+                <li><i class="bi bi-check-circle"></i> Sofá Cama Premium</li>
+              </ul>
+            </article>
+          </div>
+          
+          <div class="contact-card">
+            <h3><i class="bi bi-telephone"></i> Para consultas y reservas</h3>
+            <div class="phone">994 173 430</div>
+            <p>Disponible de lunes a domingo de 6:00 am a 10:00 pm</p>
+          </div>
+          
+          <h3 class="section-title">Experiencia Premium</h3>
+          <div class="features-grid">
+            <div class="feature-item">
+              <i class="bi bi-arrow-through-heart"></i>
+              <h4>Confort Excepcional</h4>
+              <p>Asientos ergonómicos con máximo espacio para piernas</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-mountain"></i>
+              <h4>Vistas Panorámicas</h4>
+              <p>Ventanas amplias para disfrutar el paisaje andino</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-thermometer-snow"></i>
+              <h4>Climatización Inteligente</h4>
+              <p>Temperatura controlada durante todo el viaje</p>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-bag-plus"></i>
+              <h4>Equipaje Especial</h4>
+              <p>Espacio adicional para equipos de montaña</p>
+            </div>
+          </div>
+          
+          <h3 class="section-title">La Experiencia Andina</h3>
+          <p class="section-content">Z Buss Huaraz no es solo un medio para llegar a uno de los paisajes más espectaculares de Perú; es una parte integral de la aventura. Con su combinación de seguridad, comodidad y atención al cliente, Z Buss se ha establecido como la opción preferida para aquellos que buscan explorar las maravillas de Huaraz y sus alrededores. Ya sea para aventureros, turistas o locales, Z Buss Huaraz ofrece más que un viaje: ofrece una experiencia inolvidable en el corazón de los Andes peruanos.</p>
+        </div>
+      </section>
+      
+    </main>
+  </div>
+
+  <a href="#" class="back-to-top">
+    <i class="bi bi-arrow-up"></i>
+  </a>
+
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h4 class="footer-title">Z BUSS</h4>
+                <p>Tu compañía de confianza para viajes seguros y cómodos por todo el Perú. Con más de 10 años de experiencia transportando pasajeros con excelencia.</p>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/share/18CFXMcTkb/?mibextid=LQQJ4d" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/zbuss.oficial?igsh=dWdwZTN4Yzlxamdk" target="_blank"><i class="fab fa-instagram"></i></a>                    
+                    <a href="https://x.com/?lang=es" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h4 class="footer-title">Enlaces Rápidos</h4>
+                <ul class="footer-links">
+                    <li><a href="#" th:href="@{/home}"><i class="fas fa-angle-right me-2"></i> Inicio</a></li>
+                    <li><a href="#" th:href="@{/destinos}"><i class="fas fa-angle-right me-2"></i> Destinos</a></li>
+                    <li><a href="#" th:href="@{/rutas}"><i class="fas fa-angle-right me-2"></i> Comprar Pasajes</a></li>
+                    <li><a href="#" th:href="@{/quienes-somos}"><i class="fas fa-angle-right me-2"></i> Quiénes Somos</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-4">
+                <h4 class="footer-title">Información de Contacto</h4>
+                <ul class="footer-links">
+                    <li><i class="fas fa-map-marker-alt me-2"></i> Av. Javier Prado 123, Lima, Perú</li>
+                    <li><i class="fas fa-phone me-2"></i> (01) 987-6543</li>
+                    <li><i class="fab fa-whatsapp me-2"></i> +51 987 654 321</li>
+                    <li><i class="fas fa-envelope me-2"></i> contacto@zbuss.pe</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2025 Z BUSS - Todos los derechos reservados</p>
+        </div>
+    </div>
+</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+
+    const backToTopButton = document.querySelector('.back-to-top');
+    
+    window.addEventListener('scroll', () => {
+      if (window.pageYOffset > 300) {
+        backToTopButton.classList.add('show');
+      } else {
+        backToTopButton.classList.remove('show');
+      }
+    });
+    
+    backToTopButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+    
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

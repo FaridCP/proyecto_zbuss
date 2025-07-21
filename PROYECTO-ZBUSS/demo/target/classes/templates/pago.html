@@ -1,0 +1,322 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Método de Pago - ZBUSS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/rutas.css}">
+  <style>
+    .card { border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .timer-box {
+      position: fixed;
+      top: 100px;
+      right: 40px;
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .timer-box.warning {
+      background-color: #fff3cd;
+      color: #856404;
+      border-color: #ffeeba;
+    }
+    .timer-box.danger {
+      background-color: #f8d7da;
+      color: #721c24;
+      border-color: #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" th:href="@{/home}">
+      <img src="/img/cropped-z-bus.png" alt="Logo ZBUSS" class="me-2">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link active" th:href="@{/home}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/rutas}">Pasajes</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/destinos}">Destinos</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/quienes-somos}">Quiénes Somos</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/contacto}">Contacto</a></li>
+
+        <!-- Usuario logueado -->
+        <li class="nav-item dropdown" th:if="${session.usuarioLogeado != null}">
+          <a class="nav-link dropdown-toggle" href="#" id="usuarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user me-1"></i>
+            <span th:text="${session.usuarioLogeado.nombre}">Usuario</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
+            <li><a class="dropdown-item" th:href="@{/perfil/compras}"><i class="fas fa-ticket-alt me-2"></i> Mis Compras</a></li>
+            <li><a class="dropdown-item" th:href="@{/cambiar-contrasena}"><i class="fas fa-key me-2"></i> Cambiar Contraseña</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión</a></li>
+          </ul>
+        </li>
+
+        <!-- Usuario no logueado -->
+        <li class="nav-item" th:if="${session.usuarioLogeado == null}">
+          <a class="nav-link" th:href="@{/login}"><i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="modal fade" id="logoutModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cerrar sesión</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">¿Estás seguro de que quieres cerrar sesión?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <a class="btn btn-primary" th:href="@{/logout}">Cerrar sesión</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="container my-5">
+  <div class="card p-4">
+    <h2 class="text-center mb-4">Confirmar Pago</h2>
+
+    <div id="timerBox" class="timer-box">
+      ⏳ Tiempo restante: <span id="countdown">--:--</span>
+    </div>
+
+    <form th:action="@{/pago/confirmar}" method="post" id="formPago">
+      <input type="hidden" id="paypalTransactionId" name="paypalTransactionId" />
+
+      <div class="mb-3">
+        <label class="form-label">Método de Pago:</label>
+        <select id="metodoPago" name="metodoPago" class="form-select" required onchange="actualizarMetodo()">
+          <option value="" disabled selected>-- Seleccione --</option>
+          <option th:each="metodo : ${metodos}" th:value="${metodo.idMetodoPago}" th:text="${metodo.nombre}"></option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Tipo de Comprobante:</label>
+
+        <div th:if="${usuario.tipoDocumento.name() == 'RUC'}">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="tipoComprobante" value="FACTURA" checked disabled>
+            <label class="form-check-label">Factura</label>
+          </div>
+          <input type="hidden" name="tipoComprobante" value="FACTURA" />
+        </div>
+
+        <div th:if="${usuario.tipoDocumento.name() != 'RUC'}">
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="tipoComprobante" value="BOLETA" checked onclick="mostrarDatosFactura(false)">
+            <label class="form-check-label">Boleta</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="tipoComprobante" value="FACTURA" onclick="mostrarDatosFactura(true)">
+            <label class="form-check-label">Factura</label>
+          </div>
+        </div>
+      </div>
+
+      <div id="datosFacturaManual" class="mb-3 d-none" th:if="${usuario.tipoDocumento.name() != 'RUC'}">
+        <label class="form-label">Datos para Factura:</label>
+        <input type="text" class="form-control mb-2" name="rucManual" id="rucManual"
+              placeholder="RUC (11 dígitos)"
+              pattern="^\d{11}$"
+              maxlength="11"
+              oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+              title="El RUC debe tener exactamente 11 dígitos numéricos" />
+        <input type="text" class="form-control" name="razonSocialManual" id="razonSocialManual" placeholder="Razón Social">
+      </div>
+
+      <div class="mb-3" th:if="${usuario.tipoDocumento.name() == 'RUC'}">
+        <label class="form-label">Empresa:</label>
+        <input type="text" class="form-control mb-2" th:value="${usuario.documento}" readonly>
+        <input type="text" class="form-control" th:value="${usuario.razonSocial}" readonly>
+      </div>
+
+      <div id="qr-container" class="text-center d-none mb-3">
+        <p>Escanea el código QR para pagar con Yape o Plin</p>
+        <img id="qr-img" src="" alt="QR Yape/Plin" class="img-fluid rounded" style="max-width: 250px;">
+        <p class="mt-3 text-danger fw-bold">Indicar en la descripción del pago el número del DNI del pasajero</p>
+        <div class="mt-3">
+          <input type="text" class="form-control text-center" id="codigoOperacion" name="codigoOperacion"
+                placeholder="Código de operación (8 dígitos)"
+                pattern="^0\d{7}$"
+                maxlength="8"
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                title="Debe tener exactamente 8 dígitos numéricos y comenzar con 0" />
+        </div>
+      </div>
+
+      <div id="paypal-button-container" class="d-none mb-3"></div>
+
+      <div class="alert alert-info text-center fw-bold">
+        Total a pagar: S/. <span id="precioTotal" th:text="${precioTotal}">0.00</span>
+      </div>
+
+      <div class="text-center mt-4">
+        <button type="submit" id="btnConfirmar" class="btn btn-success btn-lg">Confirmar</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h4 class="footer-title">Z BUSS</h4>
+                <p>Tu compañía de confianza para viajes seguros y cómodos por todo el Perú. Con más de 10 años de experiencia transportando pasajeros con excelencia.</p>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/share/18CFXMcTkb/?mibextid=LQQJ4d" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/zbuss.oficial?igsh=dWdwZTN4Yzlxamdk" target="_blank"><i class="fab fa-instagram"></i></a>                    
+                    <a href="https://x.com/?lang=es" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h4 class="footer-title">Enlaces Rápidos</h4>
+                <ul class="footer-links">
+                    <li><a href="#" th:href="@{/home}"><i class="fas fa-angle-right me-2"></i> Inicio</a></li>
+                    <li><a href="#" th:href="@{/destinos}"><i class="fas fa-angle-right me-2"></i> Destinos</a></li>
+                    <li><a href="#" th:href="@{/rutas}"><i class="fas fa-angle-right me-2"></i> Comprar Pasajes</a></li>
+                    <li><a href="#" th:href="@{/quienes-somos}"><i class="fas fa-angle-right me-2"></i> Quiénes Somos</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-4">
+                <h4 class="footer-title">Información de Contacto</h4>
+                <ul class="footer-links">
+                    <li><i class="fas fa-map-marker-alt me-2"></i> Av. Javier Prado 123, Lima, Perú</li>
+                    <li><i class="fas fa-phone"></i> (01) 987-6543</li>
+                    <li><i class="fab fa-whatsapp me-2"></i> +51 987 654 321</li>
+                    <li><i class="fas fa-envelope me-2"></i> contacto@zbuss.pe</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2025 Z BUSS - Todos los derechos reservados</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AaeIxo3VWOrorNGMIndQF4NE04PtpFq2m6e1vsqf3X5ZKyMOiCB0ctnAl38XvkdrxnZZEn2a0Rt_zWiH&currency=USD"></script>
+
+<script>
+  function mostrarDatosFactura(mostrar) {
+    const div = document.getElementById("datosFacturaManual");
+    if (div) {
+      div.classList.toggle("d-none", !mostrar);
+      document.getElementById("rucManual").required = mostrar;
+      document.getElementById("razonSocialManual").required = mostrar;
+    }
+  }
+
+  function actualizarMetodo() {
+    const metodo = document.getElementById("metodoPago").selectedOptions[0].textContent.toLowerCase();
+    const qr = document.getElementById("qr-container");
+    const paypal = document.getElementById("paypal-button-container");
+    const btn = document.getElementById("btnConfirmar");
+    const codOp = document.getElementById("codigoOperacion");
+
+    qr.classList.add("d-none");
+    paypal.classList.add("d-none");
+    btn.classList.remove("d-none");
+    codOp.required = false;
+    codOp.value = "";
+
+    if (metodo.includes("yape") || metodo.includes("plin")) {
+      document.getElementById("qr-img").src = "/img/yape_qr.png";
+      qr.classList.remove("d-none");
+      codOp.required = true;
+    } else if (metodo.includes("paypal")) {
+      paypal.classList.remove("d-none");
+      btn.classList.add("d-none");
+    }
+  }
+
+  paypal.Buttons({
+    createOrder: function(data, actions) {
+      const monto = document.getElementById("precioTotal").textContent.trim();
+      return actions.order.create({
+        purchase_units: [{ amount: { value: monto || "10.00" } }]
+      });
+    },
+    onApprove: function(data, actions) {
+      return actions.order.capture().then(function(details) {
+        document.getElementById("paypalTransactionId").value = details.id;
+        document.getElementById("formPago").submit();
+      });
+    },
+    onError: function(err) {
+      console.error('Error con PayPal:', err);
+      alert("Hubo un problema con el pago.");
+    }
+  }).render('#paypal-button-container');
+</script>
+
+<script th:inline="javascript">
+  let duration = /*[[${segundosRestantes}]]*/ 300;
+  const countdownEl = document.getElementById('countdown');
+  const timerBox = document.getElementById('timerBox');
+
+  function formatTime(seg) {
+    const min = Math.floor(seg / 60).toString().padStart(2, '0');
+    const sec = (seg % 60).toString().padStart(2, '0');
+    return `${min}:${sec}`;
+  }
+
+  function actualizarEstilo(seg) {
+    timerBox.classList.remove("warning", "danger");
+
+    if (seg <= 60) {
+      timerBox.classList.add("danger");
+    } else if (seg <= 180) {
+      timerBox.classList.add("warning");
+    }
+  }
+
+  function startCountdown() {
+    countdownEl.textContent = formatTime(duration);
+    actualizarEstilo(duration);
+
+    const intervalo = setInterval(() => {
+      duration--;
+      countdownEl.textContent = formatTime(duration);
+      actualizarEstilo(duration);
+
+      if (duration <= 0) {
+        clearInterval(intervalo);
+        alert("⏰ El tiempo ha expirado. Serás redirigido al inicio.");
+        window.location.href = "/rutas";
+      }
+    }, 1000);
+  }
+
+  startCountdown();
+</script>
+
+</body>
+</html>
+

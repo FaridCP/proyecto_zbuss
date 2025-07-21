@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Seleccionar Ruta</title>
+    <link rel="stylesheet" href="/css/estilos.css" />
+</head>
+<body>
+
+    <header>
+        <h1>Seleccionar Ruta</h1>
+    </header>
+
+    <main>
+        <section class="rutas-disponibles">
+            <h2>Rutas disponibles</h2>
+            <div class="grid-rutas">
+                <div class="ruta-card" th:each="ruta : ${rutas}">
+                    <h3 th:text="${ruta.origen} + ' → ' + ${ruta.destino}"></h3>
+                    <p><strong>Duración:</strong> <span th:text="${ruta.duracion} + ' min'"></span></p>
+                    <p><strong>Precio:</strong> S/ <span th:text="${ruta.precio}"></span></p>
+                    <a th:href="@{/asientos(rutaId=${ruta.idRuta})}" class="btn-seleccionar">Seleccionar</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
