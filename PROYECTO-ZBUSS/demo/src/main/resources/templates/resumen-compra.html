@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Resumen de Compra - ZBUSS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" th:href="@{/css/rutas.css}">
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .timer-box {
+      position: fixed;
+      top: 100px;
+      right: 40px;
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .timer-box.warning {
+      background-color: #fff3cd;
+      color: #856404;
+      border-color: #ffeeba;
+    }
+    .timer-box.danger {
+      background-color: #f8d7da;
+      color: #721c24;
+      border-color: #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" th:href="@{/home}">
+      <img src="/img/cropped-z-bus.png" alt="Logo ZBUSS" class="me-2">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link active" th:href="@{/home}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/rutas}">Pasajes</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/destinos}">Destinos</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/quienes-somos}">Quiénes Somos</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/contacto}">Contacto</a></li>
+
+        <!-- Usuario logueado -->
+        <li class="nav-item dropdown" th:if="${session.usuarioLogeado != null}">
+          <a class="nav-link dropdown-toggle" href="#" id="usuarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user me-1"></i>
+            <span th:text="${session.usuarioLogeado.nombre}">Usuario</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
+            <li><a class="dropdown-item" th:href="@{/perfil/compras}"><i class="fas fa-ticket-alt me-2"></i> Mis Compras</a></li>
+            <li><a class="dropdown-item" th:href="@{/cambiar-contrasena}"><i class="fas fa-key me-2"></i> Cambiar Contraseña</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión</a></li>
+          </ul>
+        </li>
+
+        <!-- Usuario no logueado -->
+        <li class="nav-item" th:if="${session.usuarioLogeado == null}">
+          <a class="nav-link" th:href="@{/login}"><i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="modal fade" id="logoutModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cerrar sesión</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">¿Estás seguro de que quieres cerrar sesión?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <a class="btn btn-primary" th:href="@{/logout}">Cerrar sesión</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="container my-5">
+  <h2 class="text-center mb-5">Resumen de Compra</h2>
+
+  <div id="timerBox" class="timer-box">
+    ⏳ Tiempo restante: <span id="countdown">--:--</span>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white"><i class="fas fa-bus"></i> Ruta</div>
+    <div class="card-body">
+      <p><strong>Origen:</strong> <span th:text="${ruta.origen}">Lima</span></p>
+      <p><strong>Destino:</strong> <span th:text="${ruta.destino}">Cusco</span></p>
+      <p><strong>Duración:</strong> <span th:text="${ruta.duracion}">12</span> min</p>
+      <p><strong>Precio base:</strong> S/. <span th:text="${ruta.precio}">35.0</span></p>
+    </div>
+  </div>
+
+  <!-- Pasajeros -->
+  <div class="card mb-4">
+    <div class="card-header bg-secondary text-white"><i class="fas fa-users"></i> Pasajeros</div>
+    <div class="card-body">
+      <div th:each="p, iter : ${pasajeros}" class="mb-3">
+        <h6>Pasajero [[${iter.index + 1}]]</h6>
+        <ul>
+          <li><strong>Nombre:</strong> <span th:text="${p.nombres} + ' ' + ${p.apellidos}">Juan Perez</span></li>
+          <li><strong>DNI:</strong> <span th:text="${p.dni}">12345678</span></li>
+          <li><strong>Teléfono:</strong> <span th:text="${p.telefono}">987654321</span></li>
+          <li><strong>Fecha de nacimiento:</strong> <span th:text="${p.fechaNacimiento}">1990-01-01</span></li>
+          <li><strong>Precio aplicado:</strong> 
+            <span th:text="'S/. ' + ${preciosIndividuales[iter.index]}">35.0</span>
+          </li>
+        </ul>
+        <hr />
+      </div>
+    </div>
+  </div>
+
+  <!-- Horario & Asientos -->
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white"><i class="fas fa-clock"></i> Horario y Asientos</div>
+    <div class="card-body">
+      <p><strong>Horario de salida:</strong>
+        <span th:if="${horario != null}" th:text="${#dates.format(horario.fechaHoraSalida, 'dd/MM/yyyy HH:mm')}"></span>
+        <span th:if="${horario == null}" class="text-danger">No se seleccionó horario.</span>
+      </p>
+      <p><strong>Asientos seleccionados:</strong></p>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item" th:each="num : ${asientos}">
+          Asiento <span th:text="${num}"></span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Total y botón -->
+  <div class="alert alert-success text-center">
+    <strong>Total a pagar: S/. <span th:text="${precioTotal}">35.0</span></strong>
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="/pago" class="btn btn-success btn-lg">
+      <i class="fas fa-wallet me-2"></i> Ir a método de pago
+    </a>
+  </div>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h4 class="footer-title">Z BUSS</h4>
+                <p>Tu compañía de confianza para viajes seguros y cómodos por todo el Perú. Con más de 10 años de experiencia transportando pasajeros con excelencia.</p>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/share/18CFXMcTkb/?mibextid=LQQJ4d" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/zbuss.oficial?igsh=dWdwZTN4Yzlxamdk" target="_blank"><i class="fab fa-instagram"></i></a>                    
+                    <a href="https://x.com/?lang=es" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h4 class="footer-title">Enlaces Rápidos</h4>
+                <ul class="footer-links">
+                    <li><a href="#" th:href="@{/home}"><i class="fas fa-angle-right me-2"></i> Inicio</a></li>
+                    <li><a href="#" th:href="@{/destinos}"><i class="fas fa-angle-right me-2"></i> Destinos</a></li>
+                    <li><a href="#" th:href="@{/rutas}"><i class="fas fa-angle-right me-2"></i> Comprar Pasajes</a></li>
+                    <li><a href="#" th:href="@{/quienes-somos}"><i class="fas fa-angle-right me-2"></i> Quiénes Somos</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-4">
+                <h4 class="footer-title">Información de Contacto</h4>
+                <ul class="footer-links">
+                    <li><i class="fas fa-map-marker-alt me-2"></i> Av. Javier Prado 123, Lima, Perú</li>
+                    <li><i class="fas fa-phone"></i> (01) 987-6543</li>
+                    <li><i class="fab fa-whatsapp me-2"></i> +51 987 654 321</li>
+                    <li><i class="fas fa-envelope me-2"></i> contacto@zbuss.pe</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2025 Z BUSS - Todos los derechos reservados</p>
+        </div>
+    </div>
+</footer>
+
+<script th:inline="javascript">
+  let duration = /*[[${segundosRestantes}]]*/ 300;
+  const countdownEl = document.getElementById('countdown');
+  const timerBox = document.getElementById('timerBox');
+
+  function formatTime(seg) {
+    const min = Math.floor(seg / 60).toString().padStart(2, '0');
+    const sec = (seg % 60).toString().padStart(2, '0');
+    return `${min}:${sec}`;
+  }
+
+  function actualizarEstilo(seg) {
+    timerBox.classList.remove("warning", "danger");
+
+    if (seg <= 60) {
+      timerBox.classList.add("danger");
+    } else if (seg <= 180) {
+      timerBox.classList.add("warning");
+    }
+  }
+
+  function startCountdown() {
+    countdownEl.textContent = formatTime(duration);
+    actualizarEstilo(duration);
+
+    const intervalo = setInterval(() => {
+      duration--;
+      countdownEl.textContent = formatTime(duration);
+      actualizarEstilo(duration);
+
+      if (duration <= 0) {
+        clearInterval(intervalo);
+        alert("⏰ El tiempo ha expirado. Serás redirigido al inicio.");
+        window.location.href = "/rutas";
+      }
+    }, 1000);
+  }
+
+  startCountdown();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

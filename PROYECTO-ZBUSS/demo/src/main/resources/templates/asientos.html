@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Seleccionar Asientos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/rutas.css}">
+    <style>
+        .seat { width: 50px; height: 50px; border: none; background-size: cover; background-repeat: no-repeat; background-position: center; }
+        .seat.free { background-image: url('/img/seat-free.png'); }
+        .seat.occupied { background-image: url('/img/seat-occupied.png'); pointer-events: none; opacity: 0.5; }
+        .seat.selected { background-image: url('/img/seat-selected.png'); }
+        .asiento-col { width: 80px; margin: 10px; text-align: center; }
+        .leyenda .seat { width: 30px; height: 30px; }
+        .timer-box {
+            position: fixed; top: 100px; right: 40px; background-color: #d4edda; color: #155724;
+            border: 1px solid #c3e6cb; padding: 10px 15px; border-radius: 8px; font-weight: bold;
+            font-size: 1rem; box-shadow: 0 0 10px rgba(0,0,0,0.05); z-index: 999;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .timer-box.warning { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
+        .timer-box.danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" th:href="@{/home}">
+      <img src="/img/cropped-z-bus.png" alt="Logo ZBUSS" class="me-2">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link active" th:href="@{/home}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/rutas}">Pasajes</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/destinos}">Destinos</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/quienes-somos}">Quiénes Somos</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/contacto}">Contacto</a></li>
+
+        <!-- Usuario logueado -->
+        <li class="nav-item dropdown" th:if="${session.usuarioLogeado != null}">
+          <a class="nav-link dropdown-toggle" href="#" id="usuarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user me-1"></i>
+            <span th:text="${session.usuarioLogeado.nombre}">Usuario</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
+            <li><a class="dropdown-item" th:href="@{/perfil/compras}"><i class="fas fa-ticket-alt me-2"></i> Mis Compras</a></li>
+            <li><a class="dropdown-item" th:href="@{/cambiar-contrasena}"><i class="fas fa-key me-2"></i> Cambiar Contraseña</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión</a></li>
+          </ul>
+        </li>
+
+        <!-- Usuario no logueado -->
+        <li class="nav-item" th:if="${session.usuarioLogeado == null}">
+          <a class="nav-link" th:href="@{/login}"><i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="modal fade" id="logoutModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cerrar sesión</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">¿Estás seguro de que quieres cerrar sesión?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <a class="btn btn-primary" th:href="@{/logout}">Cerrar sesión</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="timerBox" class="timer-box">⏳ Tiempo restante: <span id="tiempoRestante">5:00</span></div>
+
+<main class="container mt-4 text-center">
+
+    <h2 class="mb-3">Seleccione el Horario</h2>
+    <form method="get" th:action="@{/asientos/seleccionar}">
+        <input type="hidden" name="rutaId" th:value="${ruta.idRuta}" />
+        <select name="horarioId" class="form-select w-50 mx-auto mb-4" onchange="this.form.submit()">
+            <option th:each="h : ${horarios}"
+                    th:value="${h.idHorario}"
+                    th:text="${#dates.format(h.fechaHoraSalida, 'dd/MM/yyyy HH:mm')}"
+                    th:selected="${h.idHorario == horarioIdSeleccionado}">
+            </option>
+        </select>
+    </form>
+
+    <h2 class="mb-3">Características del Bus</h2>
+    <p class="fs-5">
+        Modelo: <strong th:text="${ruta.bus.modelo}"></strong><br>
+        Capacidad: <strong th:text="${ruta.bus.capacidad} + ' asientos'"></strong>
+    </p>
+
+    <div class="leyenda d-flex justify-content-center gap-4 mb-3">
+        <div class="d-flex align-items-center gap-2"><div class="seat free"></div><span>Disponible</span></div>
+        <div class="d-flex align-items-center gap-2"><div class="seat occupied"></div><span>Ocupado</span></div>
+        <div class="d-flex align-items-center gap-2"><div class="seat selected"></div><span>Seleccionado</span></div>
+    </div>
+
+    <h3 class="mb-3">Asientos</h3>
+    <p><strong id="contadorAsientos">Asientos seleccionados: 0 de 5</strong></p>
+
+    <form method="post" th:action="@{/asientos/continuar}" id="asientoForm">
+        <input type="hidden" name="rutaId" th:value="${ruta.idRuta}" />
+        <input type="hidden" name="horarioId" th:value="${horarioIdSeleccionado}" />
+        <input type="hidden" name="asientoIds" id="asientoIdsInput" />
+
+        <div class="row justify-content-center">
+            <div class="d-flex flex-wrap justify-content-center">
+                <div th:each="asiento : ${asientos}" class="asiento-col">
+                    <button type="button"
+                            th:data-id="${asiento.idAsiento}"
+                            th:class="'seat ' + (${asiento.ocupado} ? 'occupied' : 'free')"
+                            onclick="toggleAsiento(this)">
+                    </button>
+                    <div th:text="${asiento.numero}"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 d-flex justify-content-center gap-3">
+            <button type="button" class="btn btn-success" onclick="manejarContinuar()">Continuar</button>
+            <a th:href="@{/rutas}" class="btn btn-outline-danger">Cancelar</a>
+        </div>
+    </form>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h4 class="footer-title">Z BUSS</h4>
+                <p>Tu compañía de confianza para viajes seguros y cómodos por todo el Perú. Con más de 10 años de experiencia transportando pasajeros con excelencia.</p>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/share/18CFXMcTkb/?mibextid=LQQJ4d" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/zbuss.oficial?igsh=dWdwZTN4Yzlxamdk" target="_blank"><i class="fab fa-instagram"></i></a>                    
+                    <a href="https://x.com/?lang=es" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h4 class="footer-title">Enlaces Rápidos</h4>
+                <ul class="footer-links">
+                    <li><a href="#" th:href="@{/home}"><i class="fas fa-angle-right me-2"></i> Inicio</a></li>
+                    <li><a href="#" th:href="@{/destinos}"><i class="fas fa-angle-right me-2"></i> Destinos</a></li>
+                    <li><a href="#" th:href="@{/rutas}"><i class="fas fa-angle-right me-2"></i> Comprar Pasajes</a></li>
+                    <li><a href="#" th:href="@{/quienes-somos}"><i class="fas fa-angle-right me-2"></i> Quiénes Somos</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-4">
+                <h4 class="footer-title">Información de Contacto</h4>
+                <ul class="footer-links">
+                    <li><i class="fas fa-map-marker-alt me-2"></i> Av. Javier Prado 123, Lima, Perú</li>
+                    <li><i class="fas fa-phone"></i> (01) 987-6543</li>
+                    <li><i class="fab fa-whatsapp me-2"></i> +51 987 654 321</li>
+                    <li><i class="fas fa-envelope me-2"></i> contacto@zbuss.pe</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2025 Z BUSS - Todos los derechos reservados</p>
+        </div>
+    </div>
+</footer>
+
+<script th:inline="javascript">
+    let selected = [];
+
+    function toggleAsiento(btn) {
+        const id = btn.getAttribute("data-id");
+
+        if (btn.classList.contains("selected")) {
+            btn.classList.remove("selected");
+            selected = selected.filter(e => e !== id);
+        } else {
+            if (selected.length >= 5) {
+                alert("Máximo 5 asientos.");
+                return;
+            }
+            btn.classList.add("selected");
+            selected.push(id);
+        }
+
+        document.getElementById("asientoIdsInput").value = selected.join(",");
+        document.getElementById("contadorAsientos").innerText = `Asientos seleccionados: ${selected.length} de 5`;
+    }
+
+    function validar() {
+        if (selected.length === 0) {
+            alert("Debe seleccionar al menos un asiento.");
+            return false;
+        }
+        return true;
+    }
+
+    function manejarContinuar() {
+        if (!validar()) return;
+
+        const asientoIds = selected.join(",");
+        const rutaId = document.querySelector('input[name="rutaId"]').value;
+        const horarioId = document.querySelector('input[name="horarioId"]').value;
+        const usuarioLogeado = /*[[${session.usuarioLogeado != null}]]*/ false;
+
+        if (usuarioLogeado) {
+            document.getElementById("asientoIdsInput").value = asientoIds;
+            document.getElementById("asientoForm").submit(); // ✅ Esto es lo que corrige el error
+        } else {
+            const loginRedirect = `/login?rutaId=${rutaId}&horarioId=${horarioId}&asientos=${asientoIds}`;
+            window.location.href = loginRedirect;
+        }
+    }
+
+    let totalSeconds = 300;
+    function updateTimer() {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        document.getElementById("tiempoRestante").textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        const box = document.getElementById("timerBox");
+        box.classList.remove("warning", "danger");
+        if (totalSeconds <= 60) box.classList.add("danger");
+        else if (totalSeconds <= 180) box.classList.add("warning");
+
+        if (totalSeconds <= 0) window.location.href = "/rutas";
+        totalSeconds--;
+    }
+    setInterval(updateTimer, 1000);
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

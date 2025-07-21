@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalle Compra - Admin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+  <h2 class="mb-4">📄 Detalle de la Compra</h2>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <p><strong>Usuario:</strong> <span th:text="${boleto.usuario.nombre}"></span></p>
+      <p><strong>Serie:</strong> <span th:text="${boleto.numeroSerie}"></span></p>
+      <p><strong>Tipo:</strong> <span th:text="${boleto.tipoComprobante}"></span></p>
+      <p><strong>Monto Total:</strong> S/ <span th:text="${boleto.precio}"></span></p>
+      <p><strong>Ruta:</strong> <span th:text="${boleto.ruta.origen + ' → ' + boleto.ruta.destino}"></span></p>
+      <p><strong>Horario:</strong> <span th:text="${#dates.format(boleto.horario.fechaHoraSalida, 'dd/MM/yyyy HH:mm')}"></span></p>
+      <p><strong>Método de Pago:</strong> <span th:text="${boleto.metodoPago.nombre}"></span></p>
+      <p><strong>Estado:</strong>
+        <span class="badge bg-success" th:if="${boleto.pagado.name() == 'PAGADO'}">Pagado</span>
+        <span class="badge bg-warning text-dark" th:if="${boleto.pagado.name() == 'PENDIENTE'}">Pendiente</span>
+      </p>
+    </div>
+  </div>
+
+  <h4 class="mb-3">👤 Pasajeros</h4>
+  <div th:each="detalle : ${detalles}" class="card mb-3">
+    <div class="card-body">
+      <p><strong>Nombre:</strong> <span th:text="${detalle.pasajero.nombres + ' ' + detalle.pasajero.apellidos}"></span></p>
+      <p><strong>DNI:</strong> <span th:text="${detalle.pasajero.dni}"></span></p>
+      <p><strong>Teléfono:</strong> <span th:text="${detalle.pasajero.telefono}"></span></p>
+      <p><strong>Asiento:</strong> <span th:text="${detalle.asiento.numero}"></span></p>
+      <p><strong>Precio:</strong> S/ <span th:text="${detalle.precio}"></span></p>
+    </div>
+  </div>
+
+  <a href="/admin/compras" class="btn btn-secondary">← Volver a Compras</a>
+</div>
+</body>
+</html>

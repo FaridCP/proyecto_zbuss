@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mis Compras - ZBUSS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" th:href="@{/css/rutas.css}" />
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" th:href="@{/home}">
+      <img src="/img/cropped-z-bus.png" alt="Logo ZBUSS" class="me-2">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link active" th:href="@{/home}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/rutas}">Pasajes</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/destinos}">Destinos</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/quienes-somos}">Quiénes Somos</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/contacto}">Contacto</a></li>
+
+        <!-- Usuario logueado -->
+        <li class="nav-item dropdown" th:if="${session.usuarioLogeado != null}">
+          <a class="nav-link dropdown-toggle" href="#" id="usuarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user me-1"></i>
+            <span th:text="${session.usuarioLogeado.nombre}">Usuario</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
+            <li><a class="dropdown-item" th:href="@{/perfil/compras}"><i class="fas fa-ticket-alt me-2"></i> Mis Compras</a></li>
+            <li><a class="dropdown-item" th:href="@{/cambiar-contrasena}"><i class="fas fa-key me-2"></i> Cambiar Contraseña</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión</a></li>
+          </ul>
+        </li>
+
+        <!-- Usuario no logueado -->
+        <li class="nav-item" th:if="${session.usuarioLogeado == null}">
+          <a class="nav-link" th:href="@{/login}"><i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="modal fade" id="logoutModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cerrar sesión</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">¿Estás seguro de que quieres cerrar sesión?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <a class="btn btn-primary" th:href="@{/logout}">Cerrar sesión</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container my-5">
+  <h2 class="mb-4">Mis Compras</h2>
+
+  <div class="table-responsive">
+    <table class="table table-striped table-bordered align-middle">
+      <thead class="table-dark text-center">
+        <tr>
+          <th>#</th>
+          <th>Ruta</th>
+          <th>Fecha Viaje</th>
+          <th>Monto</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="boleto, iter : ${boletosPage.content}">
+          <td th:text="${iter.index + 1 + (boletosPage.number * boletosPage.size)}">1</td>
+          <td th:text="${boleto.ruta.origen + ' → ' + boleto.ruta.destino}">Lima - Cusco</td>
+          <td th:text="${#dates.format(boleto.horario.fechaHoraSalida, 'dd/MM/yyyy HH:mm')}">01/08/2025</td>
+          <td th:text="'S/ ' + ${boleto.precio}">S/ 60.00</td>
+          <td class="text-center">
+            <a class="btn btn-sm btn-info" th:href="@{/perfil/compras/{id}(id=${boleto.idBoleto})}">
+              <i class="fas fa-eye me-1"></i> Ver Detalle
+            </a>
+          </td>
+        </tr>
+        <tr th:if="${boletosPage.content.size() == 0}">
+          <td colspan="5" class="text-center">No tienes boletos comprados aún.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGINADOR -->
+  <nav th:if="${boletosPage.totalPages > 1}">
+    <ul class="pagination justify-content-center">
+
+      <li class="page-item" th:classappend="${boletosPage.first} ? 'disabled'">
+        <a class="page-link" th:href="@{'/perfil/compras?(pagina=' + ${boletosPage.number - 1} + ',tamano=' + ${boletosPage.size} + ')'}">Anterior</a>
+      </li>
+
+      <li class="page-item" 
+          th:each="i : ${#numbers.sequence(0, boletosPage.totalPages - 1)}" 
+          th:classappend="${boletosPage.number == i} ? 'active'">
+        <a class="page-link" 
+           th:href="@{'/perfil/compras?(pagina=' + ${i} + ',tamano=' + ${boletosPage.size} + ')'}"
+           th:text="${i + 1}">1</a>
+      </li>
+
+      <li class="page-item" th:classappend="${boletosPage.last} ? 'disabled'">
+        <a class="page-link" th:href="@{'/perfil/compras?(pagina=' + ${boletosPage.number + 1} + ',tamano=' + ${boletosPage.size} + ')'}">Siguiente</a>
+      </li>
+
+    </ul>
+  </nav>
+</div>
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-4 mb-4 mb-lg-0">
+        <h4 class="footer-title">Z BUSS</h4>
+        <p>Tu compañía de confianza para viajes seguros y cómodos por todo el Perú. Con más de 10 años de experiencia transportando pasajeros con excelencia.</p>
+        <div class="social-icons">
+          <a href="https://www.facebook.com/share/18CFXMcTkb/?mibextid=LQQJ4d" target="_blank"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/zbuss.oficial?igsh=dWdwZTN4Yzlxamdk" target="_blank"><i class="fab fa-instagram"></i></a>                    
+          <a href="https://x.com/?lang=es" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4 mb-lg-0">
+        <h4 class="footer-title">Enlaces Rápidos</h4>
+        <ul class="footer-links">
+          <li><a th:href="@{/home}"><i class="fas fa-angle-right me-2"></i> Inicio</a></li>
+          <li><a th:href="@{/destinos}"><i class="fas fa-angle-right me-2"></i> Destinos</a></li>
+          <li><a th:href="@{/rutas}"><i class="fas fa-angle-right me-2"></i> Comprar Pasajes</a></li>
+          <li><a th:href="@{/quienes-somos}"><i class="fas fa-angle-right me-2"></i> Quiénes Somos</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4">
+        <h4 class="footer-title">Información de Contacto</h4>
+        <ul class="footer-links">
+          <li><i class="fas fa-map-marker-alt me-2"></i>  Av. Javier Prado 123, Lima, Perú</li>
+          <li><i class="fas fa-phone me-2"></i>  (01) 987-6543</li>
+          <li><i class="fab fa-whatsapp me-2"></i> +51 987 654 321</li>
+          <li><i class="fas fa-envelope me-2"></i> contacto@zbuss.pe</li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>© 2025 Z BUSS - Todos los derechos reservados</p>
+    </div>
+  </div>
+</footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

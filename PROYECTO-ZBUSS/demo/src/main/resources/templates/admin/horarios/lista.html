@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Horarios por Ruta - ZBUSS Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Bootstrap & FontAwesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- NAVBAR reutilizado -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" th:href="@{/admin/dashboard}"><i class="fas fa-cogs me-2"></i>ZBUSS Admin</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="adminNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" th:href="@{/admin/rutas}"><i class="fas fa-route me-1"></i>Rutas</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/admin/horarios}"><i class="fas fa-clock me-1"></i>Horarios</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/admin/boletos}"><i class="fas fa-ticket-alt me-1"></i>Ventas</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/admin/usuarios}"><i class="fas fa-users me-1"></i>Usuarios</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/admin/pasajeros}"><i class="fas fa-user-friends me-1"></i>Pasajeros</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/admin/empresas}"><i class="fas fa-building me-1"></i>Empresas</a></li>
+        <li class="nav-item"><a class="nav-link text-warning" th:href="@{/logout}"><i class="fas fa-sign-out-alt me-1"></i>Salir</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- CONTENIDO -->
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-clock text-primary me-2"></i>Gestión de Horarios por Ruta</h2>
+    <a class="btn btn-outline-secondary" th:href="@{/admin/dashboard}">
+      <i class="fas fa-arrow-left me-1"></i>Volver
+    </a>
+  </div>
+
+  <table class="table table-hover table-bordered shadow-sm">
+    <thead class="table-dark text-center">
+      <tr>
+        <th>ID</th>
+        <th>Origen</th>
+        <th>Destino</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody class="text-center">
+      <tr th:each="ruta : ${rutas}">
+        <td th:text="${ruta.idRuta}">1</td>
+        <td th:text="${ruta.origen}">Lima</td>
+        <td th:text="${ruta.destino}">Cusco</td>
+        <td>
+          <a th:href="@{/admin/horarios/ruta/{id}(id=${ruta.idRuta})}" class="btn btn-primary btn-sm">
+            <i class="fas fa-eye me-1"></i>Ver Horarios
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

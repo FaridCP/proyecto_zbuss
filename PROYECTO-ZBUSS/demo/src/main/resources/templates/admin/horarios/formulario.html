@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${horario.idHorario == null} ? 'Agregar Horario' : 'Editar Horario'">Formulario Horario</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- NAVBAR ADMIN -->
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" th:href="@{/admin/dashboard}">
+      <i class="fas fa-cogs me-2"></i>ZBUSS Admin
+    </a>
+  </div>
+</nav>
+
+<!-- CONTENIDO -->
+<div class="container mt-5">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0" th:text="${horario.idHorario == null} ? '➕ Agregar Horario' : '✏️ Editar Horario'"></h4>
+    </div>
+    <div class="card-body">
+      <form th:action="@{/admin/horarios/guardar}" th:object="${horario}" method="post">
+        <input type="hidden" th:field="*{idHorario}" />
+        <input type="hidden" th:field="*{ruta.idRuta}" />
+
+        <div class="mb-3">
+          <label class="form-label">🕒 Fecha y Hora de Salida:</label>
+          <input type="datetime-local" class="form-control" th:field="*{fechaHoraSalida}" required />
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-save me-1"></i>Guardar
+          </button>
+          <a th:href="@{/admin/horarios/ruta/{id}(id=${horario.ruta.idRuta})}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+

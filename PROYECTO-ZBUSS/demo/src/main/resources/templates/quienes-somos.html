@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quiénes Somos - Z Buss</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" th:href="@{/css/rutas.css}"></link>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #1c3d58;
+      --secondary-color: #f8c146;
+      --accent-color: #3498db;
+      --light-color: #f8f9fa;
+      --dark-color: #333;
+      --text-color: #444;
+      --transition: all 0.3s ease;
+    }
+    
+    body {
+      background-color: var(--light-color);
+      color: var(--text-color);
+      line-height: 1.7;
+    }
+    
+    header {
+      text-align: center;
+      margin: 3rem 0 2.5rem;
+      position: relative;
+    }
+    
+    header h1 {
+      color: var(--primary-color);
+      font-weight: 800;
+      font-size: 3.2rem;
+      letter-spacing: 0.05em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+      display: inline-block;
+    }
+    
+    header h1:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 4px;
+      background: var(--secondary-color);
+      border-radius: 2px;
+    }
+    
+    .image-container {
+      max-width: 900px;
+      margin: 0 auto 4rem;
+      border-radius: 15px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+      transition: var(--transition);
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .image-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+    
+    .image-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: var(--transition);
+    }
+    
+    .image-container:hover img {
+      transform: scale(1.03);
+    }
+    
+    main {
+      max-width: 900px;
+      margin: 0 auto 5rem;
+      font-size: 1.15rem;
+      padding: 0 1.5rem;
+    }
+    
+    main p {
+      margin-bottom: 1.7rem;
+    }
+    
+    .mission-values {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border-radius: 15px;
+      padding: 2.5rem;
+      margin: 3rem 0;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .mission-values h2 {
+      color: var(--primary-color);
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      position: relative;
+      padding-bottom: 15px;
+    }
+    
+    .mission-values h2:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: var(--secondary-color);
+    }
+    
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.8rem;
+      margin-top: 2.5rem;
+    }
+    
+    .value-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.8rem;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.06);
+      transition: var(--transition);
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .value-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+    }
+    
+    .value-card i {
+      font-size: 2.5rem;
+      color: var(--secondary-color);
+      margin-bottom: 1.2rem;
+    }
+    
+    .value-card h3 {
+      color: var(--primary-color);
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      font-size: 1.3rem;
+    }
+    
+    /* Panel de historia ahora en azul */
+    .history-section {
+      background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+      border-radius: 15px;
+      padding: 2.5rem;
+      margin: 3.5rem 0;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .history-section h2 {
+      color: var(--primary-color);
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      position: relative;
+      padding-bottom: 15px;
+    }
+    
+    .history-section h2:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: var(--secondary-color);
+    }
+    
+    .timeline {
+      position: relative;
+      max-width: 700px;
+      margin: 3rem auto 0;
+    }
+    
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--accent-color);
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .timeline-item {
+      position: relative;
+      width: 50%;
+      padding: 1.5rem;
+      box-sizing: border-box;
+    }
+    
+    .timeline-item:nth-child(odd) {
+      left: 0;
+      text-align: right;
+      padding-right: 3.5rem;
+    }
+    
+    .timeline-item:nth-child(even) {
+      left: 50%;
+      text-align: left;
+      padding-left: 3.5rem;
+    }
+    
+    .timeline-content {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.06);
+      position: relative;
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .timeline-content::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 20px;
+      height: 20px;
+      background: var(--accent-color);
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+    
+    .timeline-item:nth-child(odd) .timeline-content::before {
+      right: -40px;
+    }
+    
+    .timeline-item:nth-child(even) .timeline-content::before {
+      left: -40px;
+    }
+    
+    .timeline-year {
+      font-weight: 700;
+      color: var(--secondary-color);
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2.5rem;
+      }
+      
+      .timeline::before {
+        left: 30px;
+      }
+      
+      .timeline-item {
+        width: 100%;
+        padding-left: 70px;
+        padding-right: 25px;
+        text-align: left;
+      }
+      
+      .timeline-item:nth-child(odd),
+      .timeline-item:nth-child(even) {
+        left: 0;
+        text-align: left;
+        padding-left: 70px;
+        padding-right: 25px;
+      }
+      
+      .timeline-item:nth-child(odd) .timeline-content::before,
+      .timeline-item:nth-child(even) .timeline-content::before {
+        left: -40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" th:href="@{/home}">
+      <img src="/img/cropped-z-bus.png" alt="Logo ZBUSS" class="me-2">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link active" th:href="@{/home}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/rutas}">Pasajes</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/destinos}">Destinos</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/quienes-somos}">Quiénes Somos</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/contacto}">Contacto</a></li>
+
+        <!-- Usuario logueado -->
+        <li class="nav-item dropdown" th:if="${session.usuarioLogeado != null}">
+          <a class="nav-link dropdown-toggle" href="#" id="usuarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user me-1"></i>
+            <span th:text="${session.usuarioLogeado.nombre}">Usuario</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
+            <li><a class="dropdown-item" th:href="@{/perfil/compras}"><i class="fas fa-ticket-alt me-2"></i> Mis Compras</a></li>
+            <li><a class="dropdown-item" th:href="@{/cambiar-contrasena}"><i class="fas fa-key me-2"></i> Cambiar Contraseña</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión</a></li>
+          </ul>
+        </li>
+
+        <!-- Usuario no logueado -->
+        <li class="nav-item" th:if="${session.usuarioLogeado == null}">
+          <a class="nav-link" th:href="@{/login}"><i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="modal fade" id="logoutModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cerrar sesión</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">¿Estás seguro de que quieres cerrar sesión?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <a class="btn btn-primary" th:href="@{/logout}">Cerrar sesión</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="container">
+    <h1>Quiénes Somos</h1>
+  </div>
+</header>
+
+<div class="container">
+  <div class="image-container">
+    <img src="/img/z-bus-huaral.jpg" alt="Z Buss Huaral" />
+  </div>
+</div>
+
+<main class="container">
+  <p>
+    En Z Buss, nos embarcamos en el viaje del transporte de pasajeros con una misión clara: ofrecer experiencias de viaje seguras, cómodas y memorables. Fundada en 1993, hemos crecido con la visión de conectar personas y destinos con servicio de excelencia, innovación continua y responsabilidad ambiental.
+  </p>
+  
+  <div class="mission-values">
+    <h2>Nuestra Misión y Valores</h2>
+    <p>
+      Nuestros valores son el núcleo de cada kilómetro recorrido. La seguridad, confiabilidad, innovación, sostenibilidad y atención al cliente guían nuestras operaciones y estrategias. Estamos comprometidos con la excelencia en el servicio, garantizando que cada viaje con Z Buss no sea solo un traslado, sino una experiencia enriquecedora.
+    </p>
+    
+    <div class="values-grid">
+      <div class="value-card">
+        <i class="fas fa-shield-alt"></i>
+        <h3>Seguridad</h3>
+        <p>Priorizamos la seguridad de nuestros pasajeros con protocolos rigurosos y tecnología de vanguardia.</p>
+      </div>
+      
+      <div class="value-card">
+        <i class="fas fa-lightbulb"></i>
+        <h3>Innovación</h3>
+        <p>Constantemente implementamos nuevas tecnologías para mejorar tu experiencia de viaje.</p>
+      </div>
+      
+      <div class="value-card">
+        <i class="fas fa-leaf"></i>
+        <h3>Sostenibilidad</h3>
+        <p>Comprometidos con reducir nuestra huella ambiental y promover prácticas ecológicas.</p>
+      </div>
+      
+      <div class="value-card">
+        <i class="fas fa-users"></i>
+        <h3>Servicio al Cliente</h3>
+        <p>Personal capacitado para atender tus necesidades y hacer de tu viaje una experiencia placentera.</p>
+      </div>
+    </div>
+  </div>
+  
+  <h2 style="color:var(--primary-color); font-weight:700; margin-bottom:1.5rem; position:relative; padding-bottom:10px;">
+    ¿Qué nos diferencia?
+    <span style="position:absolute; bottom:0; left:0; width:80px; height:3px; background:var(--secondary-color);"></span>
+  </h2>
+  
+  <p>
+    En Z Buss, vamos más allá del transporte. Con una flota moderna y tecnológicamente avanzada, ofrecemos conectividad a bordo y comodidades que transforman cada viaje en un placer. Nuestro equipo, altamente capacitado y apasionado por el servicio, está siempre listo para asistirte, asegurando que tu experiencia sea fluida desde el momento de la reserva hasta tu llegada al destino.
+  </p>
+  
+  <div class="history-section">
+    <h2>Nuestra Historia</h2>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="timeline-year">1993</div>
+          <p>Fundación de Z Buss con solo 3 unidades, iniciando operaciones en la ruta Lima-Huaral.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="timeline-year">2001</div>
+          <p>Expansión a 5 nuevas rutas en la costa central del Perú, con flota ampliada a 15 unidades.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="timeline-year">2010</div>
+          <p>Implementación de la primera flota ecológica con motores Euro 4, reduciendo emisiones en un 40%.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="timeline-year">2020</div>
+          <p>Lanzamiento de la app móvil y sistema de reservas online, mejorando la experiencia del cliente.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <p>
+    Innovadores por naturaleza, estamos constantemente explorando nuevas rutas, servicios y tecnologías para superar las expectativas de nuestros pasajeros. La sostenibilidad es clave en nuestra visión de futuro, implementando prácticas que reducen nuestra huella ambiental y contribuyen al bienestar de las comunidades que servimos.
+  </p>
+  
+  <p>
+    En Z Buss, cada viaje es una nueva historia. Te invitamos a ser parte de nuestra travesía, donde tu destino es solo el comienzo de una experiencia inolvidable.
+  </p>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h4 class="footer-title">Z BUSS</h4>
+                <p>Tu compañía de confianza para viajes seguros y cómodos por todo el Perú. Con más de 10 años de experiencia transportando pasajeros con excelencia.</p>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/share/18CFXMcTkb/?mibextid=LQQJ4d" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/zbuss.oficial?igsh=dWdwZTN4Yzlxamdk" target="_blank"><i class="fab fa-instagram"></i></a>                    
+                    <a href="https://x.com/?lang=es" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h4 class="footer-title">Enlaces Rápidos</h4>
+                <ul class="footer-links">
+                    <li><a href="#" th:href="@{/home}"><i class="fas fa-angle-right me-2"></i> Inicio</a></li>
+                    <li><a href="#" th:href="@{/destinos}"><i class="fas fa-angle-right me-2"></i> Destinos</a></li>
+                    <li><a href="#" th:href="@{/rutas}"><i class="fas fa-angle-right me-2"></i> Comprar Pasajes</a></li>
+                    <li><a href="#" th:href="@{/quienes-somos}"><i class="fas fa-angle-right me-2"></i> Quiénes Somos</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-4">
+                <h4 class="footer-title">Información de Contacto</h4>
+                <ul class="footer-links">
+                    <li><i class="fas fa-map-marker-alt me-2"></i> Av. Javier Prado 123, Lima, Perú</li>
+                    <li><i class="fas fa-phone me-2"></i> (01) 987-6543</li>
+                    <li><i class="fab fa-whatsapp me-2"></i> +51 987 654 321</li>
+                    <li><i class="fas fa-envelope me-2"></i> contacto@zbuss.pe</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2025 Z BUSS - Todos los derechos reservados</p>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
